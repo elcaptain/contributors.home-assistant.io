@@ -40,7 +40,7 @@ Call `super()` when you inherit from a class that might implement the hook too, 
 
 Because disabled entities are never added, this hook is also the right place to keep a reference to an entity, if your integration needs one. Anything you register here is only registered for entities that are actually running.
 
-The hook doesn't run again when the user changes the entity ID. See [`async_entity_id_changed`](#async_entity_id_changedold_entity_id).
+The hook doesn't run again when the user changes the entity ID, except for some entities of custom integrations. See [`async_entity_id_changed`](#async_entity_id_changedold_entity_id).
 
 ### `async_prepare_to_add_to_hass()`
 
@@ -51,13 +51,16 @@ You rarely need it. Keep in mind:
 - Don't rely on `entity_id` or `registry_entry` here. Depending on how the entity is added, they may be unset, set by your integration, or left over from an earlier attempt.
 - Raising an exception aborts adding.
 - `async_added_to_hass` may never run, and `async_will_remove_from_hass` doesn't run when adding is aborted. Register the cleanup of anything you set up here with `async_on_remove`.
+- Don't write the state, and don't subscribe to updates that write it. The entity may not have an entity ID yet, so writing the state fails. Subscribe in `async_added_to_hass` instead.
 
 ```python
 async def async_prepare_to_add_to_hass(self) -> None:
     """Run before the entity is added."""
     await super().async_prepare_to_add_to_hass()
+    # Register with the hub, even when the entity turns out to be disabled
+    unregister = self._hub.register_channel(self._channel)
     # Runs both when adding is aborted and when the entity is removed
-    self.async_on_remove(self._device.subscribe(self._handle_update))
+    self.async_on_remove(unregister)
 ```
 
 > [!WARNING]
@@ -79,7 +82,7 @@ Registers a function to call when the entity is removed, or when adding it is ab
 
 The counterpart of `async_added_to_hass`. Use it to undo work that `async_on_remove` can't, like closing a connection that belongs to this entity only.
 
-It only runs for an entity that was added. When adding is aborted or fails, even after `async_added_to_hass` already ran, only the `async_on_remove` callbacks run. It also doesn't run when the user changes the entity ID, because the entity isn't removed.
+It only runs for an entity that was added. When adding is aborted or fails, even after `async_added_to_hass` already ran, only the `async_on_remove` callbacks run. It also doesn't run when the user changes the entity ID, because the entity isn't removed, except for some entities of custom integrations. See [`async_entity_id_changed`](#async_entity_id_changedold_entity_id).
 
 ### `async_removed_from_registry()`
 
@@ -95,11 +98,14 @@ Runs after the registry entry of the entity changed. `self.registry_entry` holds
 
 ### `async_entity_id_changed(old_entity_id)`
 
-Runs when the user changed the entity ID. The entity isn't removed and added again, so `async_will_remove_from_hass` and `async_added_to_hass` don't run. Unlike those hooks, this one is a `@callback` that runs in the event loop, so it must not await.
+Runs when the user changed the entity ID. The entity is changed in place: it isn't removed and added again, so `async_will_remove_from_hass` and `async_added_to_hass` don't run. Unlike those hooks, this one is a `@callback` that runs in the event loop, so it must not await.
+
+> [!IMPORTANT]
+> Until Home Assistant 2027.11, custom integrations have to opt in to in-place changes. If a class of a custom integration implements `async_prepare_to_add_to_hass`, `async_added_to_hass`, or `async_will_remove_from_hass`, but neither that class nor a subclass of it implements `async_entity_id_changed`, its entities are still removed and added again when the entity ID changes. Then the add and remove hooks run again, and this hook doesn't run. See the [blog post about the new lifecycle hooks](/blog/2026/10/12/new-entity-lifecycle-hooks/).
 
 By then, `self.entity_id` is the new ID, and the old ID is passed as `old_entity_id`. The state under the old ID is already removed, `async_registry_entry_updated` already ran, and Home Assistant has moved its own bookkeeping to the new ID, like registry tracking and restore state. The state under the new ID isn't written yet.
 
-If you track something by your own entity ID, like a state change listener or a dispatcher signal keyed on `self.entity_id`, or a lookup table from entity IDs to entities, move it to the new ID here. Always call `super()`, so base classes can do the same. If your entity sets up nothing keyed on its own entity ID, you don't need this hook.
+If you track something by your own entity ID, like a state change listener or a dispatcher signal keyed on `self.entity_id`, or a lookup table from entity IDs to entities, move it to the new ID here. Always call `super()`, so base classes can do the same. If your entity sets up nothing keyed on its own entity ID, you don't need this hook. A custom integration that implements the add or remove hooks still needs it to opt in to in-place changes, and then a hook that only calls `super()` is enough.
 
 Home Assistant writes the state under the new ID when the hook returns, unless you already did. If you need your own state under the new ID, for example to render a template that references `this`, write it with `self.async_write_ha_state()` yourself, but only after calling `super()`, so base classes have updated what the state depends on.
 
