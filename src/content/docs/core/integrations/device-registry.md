@@ -113,9 +113,6 @@ It raises `ValueError` when the hub does not exist yet.
 
 ## Child devices
 
-> [!WARNING]
-> Child devices are new, and the design is still being finalized. The API and behavior can change.
-
 A child device is a lightweight device for a logical part of one physical product, like one outlet of a power strip or one gang of a wall switch. The parent device holds what belongs to the whole product, like the network connection and firmware updates. Each child holds the entities of its part, like a switch and an energy sensor per outlet. Users can put each part in a different area.
 
 Do not mix this up with `via_device_id`: that is about connectivity between separate products. Child devices are about the parts of one product.
