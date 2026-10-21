@@ -50,17 +50,16 @@ You rarely need it. Keep in mind:
 
 - Don't rely on `entity_id` or `registry_entry` here. Depending on how the entity is added, they may be unset, set by your integration, or left over from an earlier attempt.
 - Raising an exception aborts adding.
-- `async_added_to_hass` may never run, and `async_will_remove_from_hass` doesn't run when adding is aborted. Register the cleanup of anything you set up here with `async_on_remove`.
+- `async_added_to_hass` may never run, and `async_will_remove_from_hass` doesn't run when adding is aborted. `async_on_remove` callbacks do run, right when adding is aborted, also when the entity is disabled. Use `async_on_remove` to clean up what only matters for this attempt to add the entity. Don't use it for a registration that has to survive a disabled entity, like in the example below: that registration belongs to your integration, so keep it there, keyed on something stable like the unique ID.
 - Don't write the state, and don't subscribe to updates that write it. The entity may not have an entity ID yet, so writing the state fails. Subscribe in `async_added_to_hass` instead.
 
 ```python
 async def async_prepare_to_add_to_hass(self) -> None:
     """Run before the entity is added."""
     await super().async_prepare_to_add_to_hass()
-    # Register with the hub, even when the entity turns out to be disabled
-    unregister = self._hub.register_channel(self._channel)
-    # Runs both when adding is aborted and when the entity is removed
-    self.async_on_remove(unregister)
+    # Let the hub know about the entity, even when it turns out to be
+    # disabled, so it can be enabled later. Not undone when adding is aborted.
+    self._hub.register_known_entity(self.unique_id, self._channel)
 ```
 
 > [!WARNING]
