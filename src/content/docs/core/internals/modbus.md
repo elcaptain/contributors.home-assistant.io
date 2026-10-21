@@ -35,7 +35,7 @@ from homeassistant.components.modbus import async_get_unit
 
 async def async_setup_entry(
     hass: HomeAssistant, entry: MyConfigEntry
-) -> bool:
+) -> None:
     """Set up my device from a config entry."""
     unit = async_get_unit(
         hass,

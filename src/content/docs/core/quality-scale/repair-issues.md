@@ -25,7 +25,7 @@ On setup, the integration checks the version of a local service. When it is too 
 ```python
 async def async_setup_entry(
     hass: HomeAssistant, entry: MyConfigEntry
-) -> bool:
+) -> None:
     """Set up My integration from a config entry."""
     client = MyClient(entry.data[CONF_HOST])
     version = await client.get_version()

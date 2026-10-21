@@ -372,7 +372,7 @@ _PLATFORMS: list[Platform] = [Platform.SENSOR]
 
 async def async_setup_entry(
     hass: HomeAssistant, entry: ExampleAirConfigEntry
-) -> bool:
+) -> None:
     """Set up Example Air from a config entry."""
     client = ExampleAirClient(
         entry.data[CONF_HOST], session=async_get_clientsession(hass)
@@ -385,14 +385,12 @@ async def async_setup_entry(
 
     await hass.config_entries.async_forward_entry_setups(entry, _PLATFORMS)
 
-    return True
-
 
 async def async_unload_entry(
     hass: HomeAssistant, entry: ExampleAirConfigEntry
-) -> bool:
+) -> None:
     """Unload a config entry."""
-    return await hass.config_entries.async_unload_platforms(
+    await hass.config_entries.async_unload_platforms_or_raise(
         entry, _PLATFORMS
     )
 ```
@@ -599,7 +597,7 @@ def mock_setup_entry() -> Generator[AsyncMock]:
     """Override async_setup_entry."""
     with patch(
         "homeassistant.components.example_air.async_setup_entry",
-        return_value=True,
+        return_value=None,
     ) as mock_setup_entry:
         yield mock_setup_entry
 

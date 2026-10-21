@@ -29,7 +29,7 @@ from homeassistant.exceptions import (
 
 async def async_setup_entry(
     hass: HomeAssistant, entry: ExampleConfigEntry
-) -> bool:
+) -> None:
     """Set up Example from a config entry."""
     client = ExampleClient(entry.data[CONF_HOST], entry.data[CONF_TOKEN])
 

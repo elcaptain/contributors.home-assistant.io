@@ -63,7 +63,7 @@ from homeassistant.core import Event, HomeAssistant, callback
 
 async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry
-) -> bool:
+) -> None:
     """Set up my integration."""
 
     @callback
@@ -74,7 +74,6 @@ async def async_setup_entry(
     entry.async_on_unload(
         hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, handle_stop)
     )
-    return True
 ```
 
 `entry.async_on_unload` calls the remove function when the config entry is unloaded. In an entity, use `self.async_on_remove` the same way.

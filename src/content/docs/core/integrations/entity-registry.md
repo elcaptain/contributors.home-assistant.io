@@ -52,7 +52,7 @@ from homeassistant.helpers import entity_registry as er
 
 async def async_migrate_entry(
     hass: HomeAssistant, entry: ExampleConfigEntry
-) -> bool:
+) -> None:
     """Migrate an old config entry."""
     if entry.version == 1:
 
@@ -75,8 +75,6 @@ async def async_migrate_entry(
         hass.config_entries.async_update_entry(
             entry, version=2, minor_version=1
         )
-
-    return True
 ```
 
 This is a major version bump, so set `VERSION = 2` on your config flow. Older code that does not know the new unique IDs would not find its entities after a downgrade, and create them again. The example builds on the unique ID of the config entry, so it assumes every entry has one.

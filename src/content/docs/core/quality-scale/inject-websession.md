@@ -24,7 +24,7 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 async def async_setup_entry(
     hass: HomeAssistant, entry: MyConfigEntry
-) -> bool:
+) -> None:
     """Set up My integration from a config entry."""
     session = async_get_clientsession(hass)
     client = MyClient(entry.data[CONF_HOST], session=session)

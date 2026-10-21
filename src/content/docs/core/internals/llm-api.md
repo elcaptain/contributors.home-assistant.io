@@ -191,7 +191,7 @@ class MyAPI(llm.API):
 
 async def async_setup_entry(
     hass: HomeAssistant, entry: MyConfigEntry
-) -> bool:
+) -> None:
     """Set up my integration."""
     entry.async_on_unload(
         llm.async_register_api(
@@ -203,7 +203,6 @@ async def async_setup_entry(
             ),
         )
     )
-    return True
 ```
 
 `llm.API` takes keyword arguments only: `hass`, a unique `id`, and the `name` users see. Set `requires_admin=True` for an API that only administrators may use. `async_register_api` returns a function that unregisters the API: when the API belongs to a config entry, call it on unload, like above.

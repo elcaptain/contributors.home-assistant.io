@@ -93,14 +93,12 @@ from homeassistant.components.labs import async_is_preview_feature_enabled
 
 async def async_setup_entry(
     hass: HomeAssistant, entry: ExampleConfigEntry
-) -> bool:
+) -> None:
     """Set up Example from a config entry."""
     if async_is_preview_feature_enabled(hass, DOMAIN, "new_dashboard"):
         await async_setup_new_dashboard(hass)
     else:
         await async_setup_classic_panel(hass)
-
-    return True
 ```
 
 Keep the preview code and the standard code clearly apart, like this. Passing a `preview=True` flag deep into your code makes it hard to remove either one later.
@@ -120,7 +118,7 @@ from homeassistant.components.labs import (
 
 async def async_setup_entry(
     hass: HomeAssistant, entry: ExampleConfigEntry
-) -> bool:
+) -> None:
     """Set up Example from a config entry."""
 
     async def _async_preview_toggled(
@@ -136,7 +134,6 @@ async def async_setup_entry(
             hass, DOMAIN, "new_dashboard", _async_preview_toggled
         )
     )
-    return True
 ```
 
 Things that work well at runtime: loading and unloading parts of the interface, creating and removing entities, starting and stopping background tasks, and registering event listeners. Things that do not: changing how Home Assistant starts, changing integrations that only load at startup, and anything that needs a change in `configuration.yaml`.

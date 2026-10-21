@@ -21,29 +21,29 @@ Unload the platforms, and clean up when that succeeds:
 ```python
 async def async_unload_entry(
     hass: HomeAssistant, entry: MyConfigEntry
-) -> bool:
+) -> None:
     """Unload a config entry."""
-    if unload_ok := await hass.config_entries.async_unload_platforms(
+    await hass.config_entries.async_unload_platforms_or_raise(
         entry, PLATFORMS
-    ):
-        await entry.runtime_data.client.disconnect()
-
-    return unload_ok
+    )
+    await entry.runtime_data.client.disconnect()
 ```
+
+`async_unload_platforms_or_raise` raises `ConfigEntryError` when a platform fails to unload, so the cleanup after it only runs when unloading succeeded.
 
 Often, you do not need to keep track of the cleanup yourself. Register it during setup with `entry.async_on_unload`, and Home Assistant calls it for you:
 
 ```python
 async def async_setup_entry(
     hass: HomeAssistant, entry: MyConfigEntry
-) -> bool:
+) -> None:
     """Set up My integration from a config entry."""
     client = MyClient(entry.data[CONF_HOST])
     entry.async_on_unload(client.subscribe(_handle_event))
     ...
 ```
 
-The callbacks registered with `entry.async_on_unload` run when `async_unload_entry` succeeds, and also whenever `async_setup_entry` fails: when it raises, like `ConfigEntryNotReady`, `ConfigEntryAuthFailed`, or `ConfigEntryError`, or when it returns `False`. You still need `async_unload_entry` itself: without it, the entry cannot be unloaded at all.
+The callbacks registered with `entry.async_on_unload` run when `async_unload_entry` succeeds, and also whenever `async_setup_entry` fails: when it raises, like `ConfigEntryNotReady`, `ConfigEntryAuthFailed`, or `ConfigEntryError`. You still need `async_unload_entry` itself: without it, the entry cannot be unloaded at all.
 
 ## How it is checked
 

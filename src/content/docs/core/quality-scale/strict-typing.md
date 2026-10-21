@@ -39,7 +39,7 @@ type MyConfigEntry = ConfigEntry[MyClient]
 
 async def async_setup_entry(
     hass: HomeAssistant, entry: MyConfigEntry
-) -> bool:
+) -> None:
     """Set up My integration from a config entry."""
 ```
 

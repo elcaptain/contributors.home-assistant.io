@@ -220,7 +220,7 @@ from homeassistant.helpers.config_entry_oauth2_flow import (
 
 async def async_setup_entry(
     hass: HomeAssistant, entry: ExampleConfigEntry
-) -> bool:
+) -> None:
     """Set up Example from a config entry."""
     implementation = await async_get_config_entry_implementation(
         hass, entry
@@ -235,8 +235,6 @@ async def async_setup_entry(
     entry.runtime_data = coordinator
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
-
-    return True
 ```
 
 Before every request, the library calls `await session.async_ensure_token_valid()`, which refreshes the token if needed, and then reads the token from `session.token["access_token"]`. Keep token handling in the library, the setup, or the coordinator, never in entity code.
