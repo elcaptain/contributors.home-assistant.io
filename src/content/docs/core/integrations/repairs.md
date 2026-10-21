@@ -103,6 +103,7 @@ ir.async_create_issue(
     is_fixable=False,
     severity=ir.IssueSeverity.WARNING,
     translation_key="firmware_too_old",
+    translation_placeholders={"version": device.firmware_version},
 )
 ```
 
