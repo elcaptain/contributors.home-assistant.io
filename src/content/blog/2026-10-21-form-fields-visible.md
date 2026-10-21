@@ -63,6 +63,6 @@ blueprint:
           max: 100
 ```
 
-**Brightness** only shows when **Dimming** is set to `fixed`. A hidden input doesn't need a value: where the blueprint uses it with `!input`, it gets its `default`, or nothing if it has none. A condition can refer to any input of the blueprint, whatever its section.
+**Brightness** only shows when **Dimming** is set to `fixed`. A hidden input does not need a value: where the blueprint uses it with `!input`, it gets its `default`, or nothing if it has none. A condition can refer to any input of the blueprint, whatever its section.
 
 Read [showing inputs based on other inputs](https://www.home-assistant.io/docs/blueprint/schema/#showing-inputs-based-on-other-inputs) in the user documentation for the details.
