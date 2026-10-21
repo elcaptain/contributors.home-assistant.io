@@ -1,14 +1,14 @@
 ---
 title: "Show flow fields based on other fields"
-description: Config and options flows can show a field only while other fields of the same step have certain values, without an extra step or showing the form again.
-date: 2026-10-20
+description: As of Home Assistant Core 2026.11, config and options flows can show a field only while other fields of the same step have certain values.
+date: 2026-10-21
 authors:
   - Paul Bottein
 areas:
   - core
 ---
 
-Config and options flows can now show a field only while other fields of the same step have certain values. You no longer need an extra step, or to show the form again after submit, just to show or hide a few fields.
+As of Home Assistant Core 2026.11, config and options flows can show a field only while other fields of the same step have certain values. You no longer need an extra step, or to show the form again after submit, just to show or hide a few fields.
 
 Give the `Required` or `Optional` marker from `homeassistant.data_entry_flow` a `visible` condition:
 
