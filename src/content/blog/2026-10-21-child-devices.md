@@ -109,6 +109,8 @@ The parent must already exist (the registry never creates it for you), must be r
 
 Migrating an integration that already splits products into several devices should preserve the existing device IDs, so that device-based automations keep working. This happens automatically: if the `identifiers` passed to `async_get_or_create_child` (or the `identifiers` of a child's `device_info`) match an existing device of the same config entry, that device is **converted to a child device in place, keeping its ID**. Registering the outlet above with the same identifiers the outlet's standalone device used before turns it into a child of the power strip without changing its ID.
 
+The conversion is rejected with `DeviceInfoError` if the same config entry already registered the device as a main device since the entry was set up. Home Assistant only forgets that registration when the config entry unloads. So when the entry is next set up after the migration, register the part only as a child device, from `async_get_or_create_child` or from the `ChildDeviceInfo` of its entities. Don't register it as a main device first, for example through a `DeviceInfo` left on one of its entities.
+
 When migrating, this is also a good moment to drop any parent-name prefix that used to be baked into the sub-device's name. For example, rename _"Power strip Outlet 3"_ to just _"Outlet 3"_, since the frontend can compose the parent name into the display name when needed.
 
 ## A child device can't be converted back to a main device
@@ -132,6 +134,8 @@ device_registry.async_get_or_create(
 
 The order matters: the child must be removed before its identifiers are free to be registered as a main device.
 
+This recipe fits a child device without entities. Removing a child device also removes the entity registry entries of its config entry and subentry, and recreating the device doesn't bring them back. They only return when your integration adds the entities again, now with a `DeviceInfo` for the main device. Home Assistant then restores their settings, like the entity ID and name. So for a child device with entities, the migration must also register its entities again.
+
 ## Lifecycle
 
 Child devices follow their parent:
@@ -149,6 +153,7 @@ Integrations which split a product into several devices and link the parts with 
 
 - Register each part with `parent_device_id` set to the parent's device ID, either from the entity's `device_info` (as `ChildDeviceInfo`) or with `async_get_or_create_child`.
 - Keep the part's existing `identifiers`, so the existing device is converted to a child in place and its ID is preserved, keeping automations working.
+- Register the part only as a child device. A device that the config entry already registered as a main device during the current setup can't be converted.
 - Remove the `via_device` or `via_device_id` link between the part and the parent. The parent relationship is now expressed by `parent_device_id`.
 - Drop any parent-name prefix from the child's name.
 
