@@ -4,6 +4,8 @@ description: What happens when Home Assistant adds and removes an entity, and th
 sidebarLabel: Lifecycle
 sidebarGroup: Basics
 order: 4
+source: https://github.com/home-assistant/core/blob/dev/homeassistant/helpers/entity.py
+lastVerified: 2026-10-21
 ---
 
 You create entity objects in the platform setup of your integration and hand them to Home Assistant with `async_add_entities`. From then on, Home Assistant decides when the entity is added, updated, and removed. Lifecycle hooks let you run code at each of those moments. All of them are optional.
