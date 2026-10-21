@@ -63,6 +63,6 @@ blueprint:
           max: 100
 ```
 
-**Brightness** only shows when **Dimming** is set to `fixed`. A hidden input does not need a value: where the blueprint uses it with `!input`, it gets its `default`, or nothing if it has none. Setting `visible` on an input section hides the whole section and its inputs.
+**Brightness** only shows when **Dimming** is set to `fixed`. When an input is hidden, the user does not have to fill it in. The automation then gets the input's `default` (`50` here), or `None` when it has no default, even if the user entered a value before the input was hidden. Setting `visible` on an input section hides the whole section and its inputs.
 
 Read [showing inputs based on other inputs](https://www.home-assistant.io/docs/blueprint/schema/#showing-inputs-based-on-other-inputs) in the user documentation for the details.
