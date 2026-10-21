@@ -24,7 +24,7 @@ ir.async_create_issue(
 )
 ```
 
-Set `config_entry_id` on issues that are about a single config entry. If your integration has code that deletes those issues when the entry is removed, you can drop it. Of the 150 core integrations that create repair issues, 11 clean up such issues themselves, and 63 leave them behind after the entry is gone. We'll update the core integrations in follow-up pull requests.
+Set `config_entry_id` on issues that are about a single config entry. If your integration has code that deletes those issues when the entry is removed, you can drop it.
 
 A few things to keep in mind:
 
@@ -32,7 +32,5 @@ A few things to keep in mind:
 - The config entry must exist. Passing an unknown ID raises `HomeAssistantError`.
 - Creating an issue that already exists replaces its `config_entry_id`, also when you leave `config_entry_id` out.
 - Issues that belong to a config entry that no longer exists are deleted when Home Assistant starts.
-
-The reauthentication issue and the orphaned ignored config entry issue that Home Assistant creates itself now belong to their config entry too.
 
 This is implemented in core [PR #186197](https://github.com/home-assistant/core/pull/186197), and lands in Home Assistant Core 2026.11. For the details, see [issues that belong to a config entry](/core/integrations/repairs/#issues-that-belong-to-a-config-entry).
