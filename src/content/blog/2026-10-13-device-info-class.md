@@ -139,7 +139,7 @@ device_info = DeviceInfo(**device_payload)
 device_info["config_entry_id"] = entry.entry_id
 ```
 
-Arguments which are not device info fields, `config_entry_id` and `config_subentry_id`, are passed to `async_get_or_create_from_info` next to the device info.
+Arguments of `async_get_or_create` which are not device info fields, such as `config_entry_id`, are passed to the method directly.
 
 ### Building from a mapping
 
