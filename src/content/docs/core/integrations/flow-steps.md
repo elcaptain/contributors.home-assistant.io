@@ -236,7 +236,7 @@ DATA_SCHEMA = probatio.Schema(
 )
 ```
 
-The **Verify SSL certificate** checkbox only shows once the user checks **Use SSL**. A condition compares the value of another field of the same step:
+The **Verify SSL certificate** checkbox only shows when **Use SSL** is checked. A condition compares the value of another field of the same step. The `operator` key picks the comparison, and `exists` and `not_exists` take no `value`:
 
 | Operator | Matches when the field |
 | --- | --- |
