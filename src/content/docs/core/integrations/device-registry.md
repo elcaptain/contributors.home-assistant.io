@@ -105,6 +105,8 @@ hub = device_registry.async_get_or_create_from_info(
 )
 ```
 
+Next to the device info, it takes `config_entry_id` and `config_subentry_id`, but not `disabled_by`. To create a device disabled, use `async_get_or_create`.
+
 ## Link devices to a hub
 
 `via_device_id` tells Home Assistant which device it reaches another device through, like the bulbs behind a bridge. It shows the topology of the network. It takes the Home Assistant ID of the hub device, so the hub has to be registered first.
@@ -161,7 +163,7 @@ outlet = device_registry.async_get_or_create_child(
 )
 ```
 
-Besides the required `config_entry_id`, `parent_device_id`, and `identifiers`, `async_get_or_create_child` takes `config_subentry_id`, `name`, `suggested_area`, `disabled_by`, `translation_key`, and `translation_placeholders`. There is deliberately no `via_device_id`, `connections`, `manufacturer`, `model`, or firmware argument: a child device doesn't have those. When you already hold a `ChildDeviceInfo`, pass it to `async_get_or_create_child_from_info`, with `device_info=` instead of the separate fields.
+Besides the required `config_entry_id`, `parent_device_id`, and `identifiers`, `async_get_or_create_child` takes `config_subentry_id`, `name`, `suggested_area`, `disabled_by`, `translation_key`, and `translation_placeholders`. There is deliberately no `via_device_id`, `connections`, `manufacturer`, `model`, or firmware argument: a child device doesn't have those. When you already hold a `ChildDeviceInfo`, pass it to `async_get_or_create_child_from_info`, next to `config_entry_id` and `config_subentry_id`. It does not take `disabled_by`.
 
 If the parent belongs to a subentry, pass its `config_subentry_id` as well. It is not inherited. The registry never creates the parent for you: it raises a `DeviceInfoError` when the parent does not exist, is a child device itself, or belongs to another config entry or subentry.
 
