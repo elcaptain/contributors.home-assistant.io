@@ -44,7 +44,7 @@ The logo is the blue house with the antenna. Each part has a meaning:
 - **The house** is the home, simplified to its most iconic shape: an orthogonal house with a pitched roof, without a gable or a chimney.
 - **The antenna** is the most recognizable part of the previous logo. Some see a tree, a set of nodes, or a circuit board. It stands for technology that is smart, connected, and growing evergreen.
 
-Download every version of the logo from the [assets repository](https://github.com/home-assistant/assets/tree/master/logo).
+Download every version of the logo from the [assets repository](https://github.com/OpenHomeFoundation/brand-assets/tree/main/home-assistant/logo).
 
 ## Layout
 
