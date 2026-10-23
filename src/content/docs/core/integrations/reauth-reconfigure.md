@@ -24,7 +24,7 @@ Raise `ConfigEntryAuthFailed` when your credentials no longer work, from `async_
 ```python
 async def async_setup_entry(
     hass: HomeAssistant, entry: ExampleConfigEntry
-) -> bool:
+) -> None:
     """Set up Example from a config entry."""
     client = ExampleClient(entry.data[CONF_TOKEN])
 

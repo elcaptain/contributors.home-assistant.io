@@ -23,7 +23,7 @@ These exceptions are how the user finds out that something is wrong. The integra
 Map the exceptions of the library to the setup exceptions:
 
 ```python
-async def async_setup_entry(hass: HomeAssistant, entry: MyConfigEntry) -> bool:
+async def async_setup_entry(hass: HomeAssistant, entry: MyConfigEntry) -> None:
     """Set up My integration from a config entry."""
     client = MyClient(entry.data[CONF_HOST])
 
@@ -42,7 +42,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: MyConfigEntry) -> bool:
 
     entry.runtime_data = client
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
-    return True
 ```
 
 You often get this for free. `await coordinator.async_config_entry_first_refresh()` raises `ConfigEntryNotReady` when the first update of a [coordinator](/glossary/coordinator/) fails, and `ConfigEntryAuthFailed` and `ConfigEntryError` raised by the update pass through. `await session.async_ensure_token_valid()` on an OAuth2 session raises the right exception when the token cannot be refreshed.

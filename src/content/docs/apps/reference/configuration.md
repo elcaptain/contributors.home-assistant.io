@@ -204,7 +204,7 @@ A value can not be higher than the hard limit of the host. On Home Assistant OS,
 
 | Key | Type | Default | Description |
 | --- | --- | --- | --- |
-| `homeassistant_api` | bool | `false` | Access to the Home Assistant Core API, through the proxy at `http://supervisor/core/api`. |
+| `homeassistant_api` | bool | `false` | Access to the Home Assistant Core API, through the proxy at `http://supervisor/core/api`. Through the proxy, your app acts as an administrator of Home Assistant. See [Home Assistant Core](/apps/guides/communication/#home-assistant-core). |
 | `hassio_api` | bool | `false` | Access to the Supervisor API beyond the basics, limited by `hassio_role`. |
 | `hassio_role` | string | `default` | The role of the app in the Supervisor API: `default`, `homeassistant`, `backup`, `manager`, or `admin`. See [API roles](/apps/guides/security/#api-roles). |
 | `auth_api` | bool | `false` | Access to the authentication API, to check user names and passwords against Home Assistant. |

@@ -16,6 +16,7 @@ These properties are specific to camera entities. The generic properties every e
 | Name | Type | Default | Description |
 | --- | --- | --- | --- |
 | `brand` | `str \| None` | `None` | The brand of the camera. |
+| `camera_entity_capabilities` | `CameraEntityCapabilities` | `CameraEntityCapabilities()` | What the camera supports. See [Two-way audio](#two-way-audio). |
 | `model` | `str \| None` | `None` | The model of the camera. |
 | `frame_interval` | `float` | `0.5` | Seconds between frames of the MJPEG stream that Home Assistant builds from still images. |
 | `is_on` | `bool` | `True` | Whether the camera is on. When it is off, image requests fail with a "service unavailable" response. |
@@ -72,6 +73,25 @@ Once you override `async_handle_async_webrtc_offer`, the frontend uses WebRTC on
 ### WebRTC providers
 
 An integration can also offer WebRTC for cameras of other integrations, based on their stream source. Implement `CameraWebRTCProvider` and register it with `async_register_webrtc_provider(hass, provider)`. The provider tells Home Assistant which stream sources it supports with `async_is_supported`, and handles the offers and candidates for those cameras. This is how go2rtc works, and you will rarely need it.
+
+### Two-way audio
+
+When the camera has a speaker, people can talk through it while they watch the live stream. To offer this, set `camera_entity_capabilities` to a `CameraEntityCapabilities` with `two_way_audio` as `True`, imported from `homeassistant.components.camera`.
+
+Only declare it when the camera can receive audio over the stream Home Assistant uses.
+
+```python
+self._attr_camera_entity_capabilities = CameraEntityCapabilities(
+    two_way_audio=device.supports_two_way_audio and device.protocol == "rtsp"
+)
+```
+
+The frontend gets two-way audio only when all of these hold:
+
+- Your entity declares two-way audio.
+- The camera streams over WebRTC, natively or through a WebRTC provider. Two-way audio is not available over HLS.
+- The user turned on the **Two-way audio** preview feature of the camera integration in [Labs](/core/development/labs/). The browser only gives access to the microphone over HTTPS, so two-way audio needs Home Assistant to be opened over HTTPS.
+
 
 ## Methods
 

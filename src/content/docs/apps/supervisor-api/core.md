@@ -131,7 +131,7 @@ Returns the resource usage of Home Assistant Core as a [stats model](/apps/super
 
 ## Home Assistant Core API proxy
 
-The proxy forwards your requests to the REST API and WebSocket API of Home Assistant Core, using your app's token. Your app needs `homeassistant_api: true` in its configuration. It does not need `hassio_api` or a role. See [talk to Home Assistant](/apps/guides/communication/) for how to use it.
+The proxy forwards your requests to the REST API and WebSocket API of Home Assistant Core, using your app's token. On the Core side, the requests run as an administrator of Home Assistant. Your app needs `homeassistant_api: true` in its configuration. It does not need `hassio_api` or a role. See [talk to Home Assistant](/apps/guides/communication/) for how to use it.
 
 Paths that start with `hassio` are blocked through the proxy.
 

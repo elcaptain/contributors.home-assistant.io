@@ -47,6 +47,9 @@ The WebSocket API is at `ws://supervisor/core/websocket`. Send your `SUPERVISOR_
 
 The proxy does not forward commands of the `supervisor/` and `hassio/` types, and blocks the `hassio` endpoints of the REST API. Those are for the Home Assistant frontend only.
 
+> [!WARNING]
+> Through the proxy, your app acts as an administrator of Home Assistant. Everything else an administrator can do, your app can do too, including managing users and their credentials. Only add `homeassistant_api: true` when your app needs Home Assistant, and treat your `SUPERVISOR_TOKEN` as an administrator credential.
+
 You can also connect to Home Assistant directly at `homeassistant` on port 8123, but then you need a user's access token and you have to know how the user configured Home Assistant. The proxy is almost always the better choice.
 
 ## The Supervisor API

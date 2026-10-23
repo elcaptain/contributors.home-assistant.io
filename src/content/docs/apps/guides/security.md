@@ -110,7 +110,7 @@ With `hassio_api: true`, your app can call the Supervisor API beyond the basic e
 
 Without `hassio_api`, your app can still use most of its own `/addons/self` endpoints (not `security` or `update`), `/info`, services, discovery, and authentication. See [Talk to Home Assistant and the Supervisor](/apps/guides/communication/#the-supervisor-api).
 
-`homeassistant_api` is separate from these roles: it controls access to the Home Assistant Core API proxy at `/core/api`.
+`homeassistant_api` is separate from these roles: it controls access to the Home Assistant Core API proxy at `/core/api`. Through the proxy, your app acts as an administrator of Home Assistant, so it can call everything an administrator can, including managing users. The roles above do not limit this. See [Home Assistant Core](/apps/guides/communication/#home-assistant-core).
 
 ## Use Home Assistant users
 

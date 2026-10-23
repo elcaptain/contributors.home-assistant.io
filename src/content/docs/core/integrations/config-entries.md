@@ -51,7 +51,7 @@ type ExampleConfigEntry = ConfigEntry[ExampleCoordinator]
 
 async def async_setup_entry(
     hass: HomeAssistant, entry: ExampleConfigEntry
-) -> bool:
+) -> None:
     """Set up Example from a config entry."""
     client = ExampleClient(
         entry.data[CONF_HOST], session=async_get_clientsession(hass)
@@ -63,9 +63,9 @@ async def async_setup_entry(
     entry.runtime_data = coordinator
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
-
-    return True
 ```
+
+`async_setup_entry` returns nothing. When it returns, the setup succeeded, and the entry is `LOADED`. When setup cannot succeed, raise an exception instead, so Home Assistant knows whether to retry, start reauthentication, or give up. See [setup failures and exceptions](/core/integrations/setup-failures/). The same goes for `async_unload_entry` and `async_migrate_entry`.
 
 ### Keep runtime data in runtime_data
 
@@ -104,10 +104,12 @@ Support unloading, so users can reload or disable an entry without restarting Ho
 ```python
 async def async_unload_entry(
     hass: HomeAssistant, entry: ExampleConfigEntry
-) -> bool:
+) -> None:
     """Unload a config entry."""
-    return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    await hass.config_entries.async_unload_platforms_or_raise(entry, PLATFORMS)
 ```
+
+When one of the platforms fails to unload, `async_unload_platforms_or_raise` raises `ConfigEntryError` with a translated message, and the entry goes to `FAILED_UNLOAD`. If your own cleanup fails, raise `ConfigEntryError` too.
 
 Most cleanup does not need its own code. Register it while setting up, and Home Assistant runs it when the entry unloads:
 
@@ -130,6 +132,8 @@ async def async_remove_entry(
 ) -> None:
     """Handle removal of an entry."""
 ```
+
+You do not need `async_remove_entry` to clean up the devices and entities of the entry, or the [repair issues that belong to it](/core/integrations/repairs/#issues-that-belong-to-a-config-entry). Home Assistant removes them for you.
 
 ## Change a config entry
 
@@ -167,7 +171,7 @@ In this example, version 2 renamed `ip_address` to `host`, which older code can'
 ```python
 async def async_migrate_entry(
     hass: HomeAssistant, entry: ExampleConfigEntry
-) -> bool:
+) -> None:
     """Migrate an old config entry."""
     if entry.version == 1:
         data = {**entry.data}
@@ -182,8 +186,6 @@ async def async_migrate_entry(
             data={**entry.data, CONF_PORT: DEFAULT_PORT},
             minor_version=2,
         )
-
-    return True
 ```
 
 An entry stored as 2.3 by a newer Home Assistant version passes through both checks untouched, and sets up as it is.
@@ -192,14 +194,22 @@ What your migration returns or raises decides what happens next:
 
 | Result | What happens |
 | --- | --- |
-| Returns `True` | Migration succeeded, setup continues |
-| Returns `False` | Setup stops, the entry goes to `MIGRATION_ERROR` |
+| Returns `None` | Migration succeeded, setup continues |
 | Raises `ConfigEntryNotReady` | Setup stops, Home Assistant retries later |
 | Raises `ConfigEntryError` or any other exception | Setup stops, the entry goes to `MIGRATION_ERROR` |
 
-Prefer raising `ConfigEntryNotReady` or `ConfigEntryError` over returning `False`. Both support translations, so you can tell the user what went wrong.
+Give `ConfigEntryNotReady` and `ConfigEntryError` a translated message, so you can tell the user what went wrong.
 
 `MIGRATION_ERROR` does not recover by itself. If the user can fix the cause, create a [repair](/core/integrations/repairs/), and call `hass.config_entries.async_retry_migration(entry_id)` from the repair flow once it is fixed.
+
+## Return values in custom integrations
+
+Custom integrations may still return a boolean from `async_setup_entry`, `async_unload_entry`, and `async_migrate_entry`, as they did before, and that is not deprecated. This is what it does:
+
+- `True` means success, like `None`.
+- `False` becomes a `ConfigEntryError` with a generic message, like "Failed to set up the config entry." The entry goes to `SETUP_ERROR`, `FAILED_UNLOAD`, or `MIGRATION_ERROR`, and the user sees that message.
+
+Switching to `None` and exceptions is still worth it: raise your own `ConfigEntryError` with a translated message, and users see what actually went wrong. The background is in the [architecture discussion](https://github.com/home-assistant/architecture/discussions/1463).
 
 ## Follow state changes
 

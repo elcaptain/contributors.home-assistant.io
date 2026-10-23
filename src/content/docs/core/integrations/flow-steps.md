@@ -215,6 +215,60 @@ probatio.Optional(CONF_UNIT_OF_MEASUREMENT): UnitOfMeasurementSelector(
 
 The context only changes what the frontend offers. The selector does not check the submitted value against the other fields, so your step still has to check that the combination makes sense.
 
+### Fields that show based on another field
+
+A field can show only while other fields of the same step have certain values. That saves you an extra step, or showing the form again after submit, just to show or hide a few fields. Use the `Required` and `Optional` markers from `homeassistant.data_entry_flow` and give them a `visible` condition:
+
+```python
+from homeassistant import data_entry_flow
+from homeassistant.helpers.selector import BooleanSelector
+
+DATA_SCHEMA = probatio.Schema(
+    {
+        probatio.Required(CONF_HOST): str,
+        probatio.Required(CONF_SSL, default=False): BooleanSelector(),
+        data_entry_flow.Required(
+            CONF_VERIFY_SSL,
+            default=True,
+            visible={"field": CONF_SSL, "value": True},
+        ): BooleanSelector(),
+    }
+)
+```
+
+The **Verify SSL certificate** checkbox only shows when **Use SSL** is checked. A condition compares the value of another field of the same step. The `operator` key picks the comparison, and `exists` and `not_exists` take no `value`:
+
+| Operator | Matches when the field |
+| --- | --- |
+| `eq` (default) | is equal to `value` |
+| `not_eq` | is not equal to `value` |
+| `in` | is one of the values in the `value` list |
+| `not_in` | is none of the values in the `value` list |
+| `exists` | has a value: it is not missing, `None`, or an empty string |
+| `not_exists` | has no value |
+
+`visible` also takes a list of conditions, which all have to match, or a plain `True` or `False`.
+
+A hidden field is not shown, not required, and left out of `user_input`, default included. For the conditions of the other fields, it counts as empty. A field missing from the submitted input is evaluated with its default, while a field submitted with an empty value keeps that value.
+
+Because a hidden field is left out of `user_input`, it can be missing from the data you store. Read it with `.get()` and a fallback, like `entry.data.get(CONF_VERIFY_SSL, True)`.
+
+Inside a [section](#sections), conditions look at the fields of that section. To hide a whole section, put `visible` on the marker of the section:
+
+```python
+data_entry_flow.Required(
+    "ssl_options",
+    visible={"field": CONF_SSL, "value": True},
+): section(
+    probatio.Schema(
+        {
+            probatio.Required(CONF_VERIFY_SSL, default=True): BooleanSelector(),
+            probatio.Optional("ca_cert"): str,
+        }
+    ),
+),
+```
+
 ### Advanced options
 
 The `show_advanced_options` property is deprecated and will be removed in Home Assistant 2027.6. Until then it always returns `True`. Put options most users do not need in a collapsed [section](#sections) instead.
@@ -314,6 +368,7 @@ async def async_step_user(
 
     if not self._pair_task.done():
         return self.async_show_progress(
+            step_id="user",
             progress_action="pairing",
             progress_task=self._pair_task,
         )

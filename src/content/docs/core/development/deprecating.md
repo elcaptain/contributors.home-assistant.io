@@ -201,7 +201,7 @@ The code above uses a second key, `deprecated_entity_used`, when the entity is s
 When an integration stops working for good, for example because the vendor shut down its API, remove it. Strip it down to a stub that raises an `ERROR` issue, and keep a minimal `config_flow.py`, so existing entries still load and the user sees what happened. The established translation key is `integration_removed`:
 
 ```python
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
     """Set up the integration from a config entry."""
     ir.async_create_issue(
         hass,
@@ -214,7 +214,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             "entries": f"/config/integrations/integration/{DOMAIN}",
         },
     )
-    return True
 ```
 
 The `entries` placeholder links to the config entries of the user. Explain in the text why the integration was removed, and that they can remove the entries. Delete the issue again in `async_unload_entry`, once the last config entry of the domain is unloaded.

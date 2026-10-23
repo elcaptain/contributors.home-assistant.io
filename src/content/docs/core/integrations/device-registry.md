@@ -121,9 +121,6 @@ It raises `ValueError` when the hub does not exist yet.
 
 ## Child devices
 
-> [!WARNING]
-> Child devices are new, and the design is still being finalized. The API and behavior can change.
-
 A child device is a lightweight device for a logical part of one physical product, like one outlet of a power strip or one gang of a wall switch. The parent device holds what belongs to the whole product, like the network connection and firmware updates. Each child holds the entities of its part, like a switch and an energy sensor per outlet. Users can put each part in a different area.
 
 Do not mix this up with `via_device_id`: that is about connectivity between separate products. Child devices are about the parts of one product.
@@ -169,7 +166,9 @@ If the parent belongs to a subentry, pass its `config_subentry_id` as well. It i
 
 If the identifiers of a child device match an existing device of the same config entry, that device becomes a child device, and keeps its ID. Automations that use the device keep working. That makes it easy to move an integration that already split products into separate devices.
 
-The other way around is not supported directly. `async_update_child_device` can't change the parent, and `async_get_or_create` with the identifiers of an existing child device raises an error instead of turning it into a normal device. To turn a child device back into a normal device, remove it with `async_remove_device`, then register it again with `async_get_or_create`, with the same identifiers. The order matters: the identifiers are only free once the child device is removed.
+This only works if the config entry has not registered the device as a normal device since the entry was set up: the registry raises a `DeviceInfoError` then. It forgets those registrations when the config entry unloads. So register the part only as a child device, and don't leave a `DeviceInfo` for it on one of its entities.
+
+The other way around is not supported directly. `async_update_child_device` can't change the parent, and `async_get_or_create` with the identifiers of an existing child device raises an error instead of turning it into a normal device. To turn a child device back into a normal device, remove it with `async_remove_device`, then register it again with `async_get_or_create`, with the same identifiers. The order matters: the identifiers are only free once the child device is removed. Removing a device also removes the entity registry entries of its entities, so this fits a child device without entities. Entities only come back when your integration adds them again, with their settings, like the entity ID and name, restored.
 
 ### What follows the parent
 
